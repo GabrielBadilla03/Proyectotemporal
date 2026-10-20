@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>MontosAgua</title>
+        <script src="rutinas.js"></script>
+    </head>
+    <body>
+        <!-- 1 Sección para crear el boton de agregar... llamará a una ventana modal-->
+        <section th:fragment="botonesAgregar" class="py-4 mb-4 bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">   
+                        <button 
+                            type="button" 
+                            class="btn btn-custom btn-block" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#agregarMontosAgua">
+                            <i class="fas fa-plus"></i> [[#{MontosAgua.agregar}]]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2 Fragmento para agregar categoria, es la ventana modal -->
+        <section th:fragment="agregarMontosAgua">
+            <div id="agregarMontosAgua" 
+                 class="modal fade" 
+                 tabindex="-1" 
+                 aria-labelledby="exampleModalLabel" 
+                 aria-hidden="true">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header titulo ">
+                            <h5 class="modal-title titulo">[[#{montosAgua.agregar}]]</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div> 
+                        <form th:action="@{/montosAgua/guardar}" th:object="${montosAgua}"
+                              method="POST" class="was-validated" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="idAgua">[[#{agua.idAgua}]]</label>
+                                    <input type="number" class="form-control" name="idAgua" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="monto">[[#{montosAgua.monto}]]</label>
+                                    <input type="number" class="form-control" name="monto" required="true"/>
+                                </div>
+                                
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-custom" type="submit">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3 Sección principal para mostrar la informaccion de la entidad categoria -->
+        <section th:fragment="listadoMontosAgua" id="MontosAgua">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-11">
+                        <div class="card">
+                            <div class="card-header titulo">
+                                <h4>[[#{montosAgua.listado}]]</h4>
+                            </div>
+                            <div th:if="${montosAgua != null and !montosAgua.empty}">
+                                <table class="table table-striped table-hover" style="width: 100%;">
+                                    <thead class="table-dark titulo">
+                                        <tr>
+                                            <th>[[#{agua.idAgua}]]</th>
+                                            <th>[[#{montosAgua.fecharegistro}]]</th>
+                                            <th>[[#{montosAgua.monto}]]</th>
+                                            <th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="montosAgua, contador : ${montosAgua}">
+                                            <td>
+                                                <span th:each="agua : ${montosAgua.idAgua}">
+                                                    [[${agua.idAgua}]]
+                                                </span>
+                                            </td> 
+                                            <td th:text="${#dates.format(montosAgua.fechaRegistro, 'MM-yyyy')}"></td>
+                                            <td>[[${montosAgua.monto}]]</td>
+                                           
+                                            <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                                <a th:href="@{/montosAgua/eliminar/}+${montosAgua.idMonto}"
+                                                   class="btn btn-danger">
+                                                    <i class="fas fa-trash"></i> [[#{accion.eliminar}]]</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${montosAgua == null or montosAgua.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 3 Sección para crear los filtros -->
+        <section th:fragment="filtros" class="bg-light">
+            <div class="row">
+                <div style="width: 200px; margin-left: 190px"></div>
+                <div class="col-md-3">
+                    <form method="POST" th:action="@{/montosAgua/query}" 
+                          class="was-validated">
+                        <div class="card">                            
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="idAgua">[[#{pruebas.idAgua}]]</label>
+                                    <input type="number" class="form-control" 
+                                           th:value="${idAgua}"
+                                           th:name="idAgua" required="true"/>
+                                </div>
+                            </div>
+                            <div class="card-footer text-center">
+                                <button type="submit" class="btn btn-custom">
+                                    <i class="fas fa-check"></i> [[#{pruebas.ampliadas}]]
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>  
+    </body>
+</html>

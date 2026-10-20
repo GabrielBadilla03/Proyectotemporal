@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>ZarpeOQue</title>
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+
+        <section th:replace="~{montosAgua/fragmentos :: botonesAgregar}"/>
+        <section th:replace="~{montosAgua/fragmentos :: filtros}"/>
+        <section th:replace="~{montosAgua/fragmentos :: agregarMontosAgua}"/> 
+        <section th:replace="~{montosAgua/fragmentos :: listadoMontosAgua}"/>
+
+        <footer th:replace="~{layout/plantilla :: footer}"/>     
+      
+    </body>
+</html>

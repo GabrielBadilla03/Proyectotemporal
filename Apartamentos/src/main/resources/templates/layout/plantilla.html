@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:fragment="head">
+        <title>Apartamentos</title>
+        <meta charset="UTF-8"/>
+        <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
+        <link th:href="@{/webjars/font-awesome/css/all.css}" rel="stylesheet"/>
+        <link th:href="@{/css/estilos.css}" rel="stylesheet"/>
+        <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+        <script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+        <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+        <script th:src="@{/js/rutinas.js}"></script>        
+    </head>
+    <body>
+
+        <header th:fragment="header" class="header text-light">
+            <nav class="navbar navbar-expand-sm p-0" style="background-color: #525661">
+                <div class="container">
+                    <a class="navbar-brand text-custom" th:href="@{/index}">[[#{aplicacion.titulo}]]</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                        <ul class="navbar-nav align-items-center text-light" style="margin-top: 10px; margin-bottom: 10px;">
+                            <li sec:authorize="hasRole('ADMIN')" class="nav-item px-2"><a class="nav-menu-link nav-link text-custom" th:href="@{/apartamento/listado}">[[#{plantilla.apartamento}]]</a></li>
+                            <li sec:authorize="hasRole('ADMIN')" class="nav-item px-2"><a class="nav-menu-link nav-link text-custom" th:href="@{/encargado/listado}">[[#{plantilla.encargado}]]</a></li>
+                            <li sec:authorize="hasRole('ADMIN')" class="nav-item px-2"><a class="nav-menu-link nav-link text-custom" th:href="@{/luz/listado}">[[#{plantilla.luz}]]</a></li>
+                            <li sec:authorize="hasRole('ADMIN')" class="nav-item px-2"><a class="nav-menu-link nav-link text-custom" th:href="@{/agua/listado}">[[#{plantilla.agua}]]</a></li>
+                            <li sec:authorize="hasRole('ADMIN')" class="nav-item px-2"><a class="nav-menu-link nav-link text-custom" th:href="@{/montosAgua/listado}">[[#{montosAgua.titulo}]]</a></li>
+                            <li sec:authorize="hasRole('ADMIN')" class="nav-item px-2"><a class="nav-menu-link nav-link text-custom" th:href="@{/montosLuz/listado}">[[#{montosLuz.titulo}]]</a></li>
+
+                            <li sec:authorize="hasRole('ADMIN')" class="nav-item px-2 "><a class="nav-link text-custom" th:href="@{/usuario/listado}">[[#{plantilla.usuarios}]]</a></li>
+                            
+                        </ul>
+                        
+                        <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
+                            <!-- Este es el botón de login para usuarios no autenticados -->
+                            <li class="nav-item text-custom">
+                                <a class="nav-link" th:href="@{/login}">
+                                    <i class="fas fa-sign-in-alt" style="color: #2d9d84;"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav" sec:authorize="isAuthenticated()">
+                            <li class="nav-item text-white my-auto">
+                                <img th:src="@{${session.usuarioImagen}}"
+                                     alt="Imágen del usuario"
+                                     height="40"
+                                     class="rounded-circle"/>
+                                <span sec:authentication="name">Chayanne</span>
+                            </li>
+                            <a class="nav-link" th:href="@{/login}">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <section id="main-header" class="py-2 titulo">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1><i class="fa fa-shopping-basket"></i> [[#{plantilla.suTienda}]]</h1>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </header>  
+
+        <footer th:fragment="footer" class="footerAbsoluto">
+            <section class="d-flex justify-content-center justify-content-lg-between border-bottom">
+                <div class="me-5 d-none d-lg-block">
+                    <span>[[#{plantilla.redesSociales}]]</span>
+                </div>
+            </section>
+            <div class="p-footer">
+                &COPY [[#{plantilla.derechos}]]
+            </div>
+        </footer>
+    </body>
+    
+    <section th:fragment="listadoAgua" id="agua">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>[[#{agua.listado}]]</h4>
+                            </div>
+                            <div th:if="${agua != null and !agua.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>[[#{agua.idagua}]]</th>
+                                            <th>[[#{agua.idApartamento}]]</th>
+                                            <th>[[#{agua.fechaVencimiento}]]</th>
+                                            <th>[[#{agua.fechaPagar}]]</th>
+                                            <th>[[#{agua.fechaInicioPago}]]</th>
+                                            <th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="agua, contador : ${agua}">
+                                            <td>[[${agua.idAgua}]]</td>
+                                            <td>
+                                                <span th:each="apartamento : ${agua.idApartamento}">
+                                                    [[${apartamento.idApartamento}]]
+                                                </span>
+                                            </td>
+                                            <td>[[${agua.fechaVencimiento}]]</td>
+                                            <td>[[${agua.fechaPagar}]]</td>
+                                            <td>[[${agua.fechaInicioPago}]]</td>
+
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${agua == null or agua.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section th:fragment="listadoApartamento" id="apartamento">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>[[#{apartamento.listado}]]</h4>
+                            </div>
+                            <div th:if="${apartamento != null and !apartamento.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>[[#{apartamento.idApartamento}]]</th>
+                                            <th>[[#{apartamento.ubicacion}]]</th>
+                                            <th>[[#{apartamento.descripcionDepartamento}]]</th>
+                                            <th>[[#{apartamento.nombre}]]</th>
+                                            <th>[[#{apartamento.idAgua}]]</th>
+                                            <th>[[#{apartamento.idLuz}]]</th>
+                                            <th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="apartamento, contador : ${apartamento}">
+                                            <td>[[${apartamento.idApartamento}]]</td>
+                                            <td>[[${apartamento.ubicacion}]]</td>
+                                            <td>[[${apartamento.descripcionDepartamento}]]</td> 
+                                            <td>
+                                                <span th:each="encargado : ${apartamento.encargado}">
+                                                    [[${encargado.nombre}]]
+                                                </span>
+                                            </td> 
+                                            <td>
+                                                <span th:each="agua : ${apartamento.idAgua}">
+                                                    [[${agua.idAgua}]]
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span th:each="luz : ${apartamento.idLuz}">
+                                                    [[${luz.idLuz}]]
+                                                </span>
+                                            </td> 
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${apartamento == null or apartamento.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section th:fragment="listadoEncargado" id="encargado">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>[[#{encargado.listado}]]</h4>
+                            </div>
+                            <div th:if="${encargado != null and !encargado.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>[[#{encargado.idEncargado}]]</th>
+                                            <th>[[#{encargado.nombre}]]</th>
+                                            <th>[[#{encargado.apellidos}]]</th>
+                                            <th>[[#{encargado.cedula}]]</th>
+                                            <th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="encargado, contador : ${encargado}">
+                                            <td>[[${encargado.idEncargado}]]</td>
+                                            <td>[[${encargado.nombre}]]</td>
+                                            <td>[[${encargado.apellidos}]]</td> 
+                                            <td>[[${encargado.cedula}]]</td> 
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${encargado == null or encargado.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section th:fragment="listadoLuz" id="luz">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>[[#{luz.listado}]]</h4>
+                            </div>
+                            <div th:if="${luz != null and !luz.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>[[#{luz.idluz}]]</th>
+                                            <th>[[#{luz.idApartamento}]]</th>
+                                            <th>[[#{luz.fechaVencimiento}]]</th>
+                                            <th>[[#{luz.fechaPagar}]]</th>
+                                            <th>[[#{luz.fechaInicioPago}]]</th>
+                                            <th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="luz, contador : ${luz}">
+                                            <td>[[${luz.idLuz}]]</td>
+                                            <td>
+                                                <span th:each="apartamento : ${luz.idApartamento}">
+                                                    [[${apartamento.idApartamento}]]
+                                                </span>
+                                            </td>
+                                            <td>[[${luz.fechaVencimiento}]]</td>
+                                            <td>[[${luz.fechaPagar}]]</td>
+                                            <td>[[${luz.fechaInicioPago}]]</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${luz == null or luz.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    
+        <section th:fragment="botonesAgregar" class="py-4 mb-4 bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">   
+                        <button 
+                            type="button" 
+                            class="btn btn-custom btn-block" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#agregarAgua">
+                            <i class="fas fa-plus"></i> [[#{agua.agregar}]]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+</html>

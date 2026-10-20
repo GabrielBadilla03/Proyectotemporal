@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>Agua</title>
+        <script src="rutinas.js"></script>
+    </head>
+    <body>
+        <!-- 1 Sección para crear el boton de agregar... llamará a una ventana modal-->
+        <section th:fragment="botonesAgregar" class="py-4 mb-4 bg-light">
+            <div class="container">
+                <div class="row d-flex justify-content-between align-items-center">
+                    <!-- Botón Agregar - Alineado a la izquierda -->
+                    <div class="col-md-3">
+                        <button 
+                            type="button" 
+                            class="btn btn-custom btn-block" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#agregarAgua">
+                            <i class="fas fa-plus"></i> [[#{accion.agregar}]]
+                        </button>
+                    </div>
+                    <div class="col-md-2" style="margin-left: 200px;">
+                        <a th:href="@{/agua/actualizarFechaVencimieno}" class="btn btn-primary btn-block">
+                            <i class="fas fa-sync-alt"></i> Actualizar Fechas
+                        </a>
+                    </div>
+                    <div class="col-md-2" style="margin-right: 5px;">
+                        <a th:href="@{/agua/descargar}" class="btn btn-danger btn-block">
+                            <i class="fas fa-file-pdf"></i> Descargar PDF
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-2" style="margin-right: 80px;">
+                        <a th:href="@{/agua/descargarMontos}" class="btn btn-danger btn-block">
+                            <i class="fas fa-file-pdf"></i> Descargar Montos
+                        </a>
+                    </div>
+                    
+                    
+
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- 2 Fragmento para agregar categoria, es la ventana modal -->
+        <section th:fragment="agregarAgua">
+            <div id="agregarAgua" 
+                 class="modal fade" 
+                 tabindex="-1" 
+                 aria-labelledby="exampleModalLabel" 
+                 aria-hidden="true">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header titulo">
+                            <h5 class="modal-title">[[#{agua.agregar}]]</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div> 
+                        <form th:action="@{/agua/guardar}" th:object="${agua}"
+                              method="POST" class="was-validated" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="idAgua">[[#{agua.idAgua}]]</label>
+                                    <input type="number" class="form-control" name="idAgua" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="titular">[[#{agua.titular}]]</label>
+                                    <input type="text" class="form-control" name="titular" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fechaVencimiento">[[#{agua.fechaVencimiento}]]</label>
+                                    <input type="date" class="form-control" name="fechaVencimiento" required="true"/>
+                                </div> 
+                                <div class="mb-3">
+                                    <label for="fechaPagar">[[#{agua.fechaPagar}]]</label>
+                                    <input type="date" class="form-control" name="fechaPagar" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fechaInicioPago">[[#{agua.fechaInicioPago}]]</label>
+                                    <input type="date" class="form-control" name="fechaInicioPago" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="pagar">[[#{agua.pagar}]]</label>
+                                    <input type="checkbox" class="form-check-input" name="pagar" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-custom" type="submit">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3 Sección principal para mostrar la informaccion de la entidad categoria -->
+        <section th:fragment="listadoAgua" id="agua">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-11">
+                        <div class="card">
+                            <div class="card-header titulo">
+                                <h4>[[#{agua.listado}]]</h4>
+                            </div>
+                            <div th:if="${agua != null and !agua.empty}">
+                                <table class="table table-striped table-hover" style="width: 100%;">
+                                    <thead class="table-dark titulo">
+                                        <tr>
+                                            <th>[[#{agua.idAgua}]]</th>
+                                            <th>[[#{agua.idApartamento}]]</th>
+                                            <th>[[#{agua.fechaVencimiento}]]</th>
+                                            <th>[[#{luz.titular}]]</th>
+                                            <th>[[#{agua.pagar}]]</th>
+                                            <th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="agua, contador : ${agua}">
+                                            <td>[[${agua.idAgua}]]</td>
+                                            <td>
+                                                <span th:each="apartamento : ${agua.idApartamento}">
+                                                    <span th:text="${apartamento.ubicacion + ' ' + apartamento.descripcionDepartamento}"></span><br>
+                                                </span>
+                                            </td>
+                                            <td th:text="${#dates.format(agua.fechaVencimiento, 'dd-MM-yyyy')}"></td>
+                                            <td>[[${agua.titular}]]</td>
+                                            <td>
+                                                <input type="checkbox" class="form-check-input" 
+                                                       th:checked="${agua.pagar}" 
+                                                       disabled="true" />
+                                            </td>
+                                            <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                                <a th:href="@{/agua/eliminar/}+${agua.idAgua}"
+                                                    class="btn btn-danger"
+                                                    style="margin-right: 10px; margin-bottom: 10px;"
+                                                    onclick="return confirm('¿Estás seguro de que deseas eliminar esta agua?');">
+                                                    <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
+                                                 </a>
+                                                <a th:href="@{/agua/modificar/}+${agua.idAgua}"
+                                                   class="btn btn-success" style="margin-right: 10px; margin-bottom: 10px;">
+                                                    <i class="fas fa-pencil"></i> [[#{accion.actualizar}]]</a>
+                                                <a th:href="@{/agua/interactuarPagina/}+${agua.idAgua}"
+                                                   class="btn btn-info" style="margin-right: 20px; margin-bottom: 10px;">
+                                                    <i class="fas fa-search"></i> [[#{accion.cobro}]]</a>
+                                                <a th:href="@{/agua/pagar/}+${agua.idAgua}"
+                                                   class="btn btn-warning" style="margin-right: 10px; margin-bottom: 10px;">
+                                                    <i class="fas fa-dollar-sign"></i> [[#{accion.pagar}]]</a></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${agua == null or agua.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section th:fragment="editarAgua">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <form method="POST"
+                          th:action="@{/agua/guardar}" 
+                          th:object="${agua}"
+                          class="was-validated"                          
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="idAgua" th:field="*{idAgua}"/>
+                        <input type="hidden" name="idApartamento" th:field="*{idApartamento}"/>
+                        <section th:replace="~{agua/fragmentos :: botonesEditar}"/>
+                        <div id=details>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card">
+                                            <div class="card-header titulo">
+                                                <h4>[[#{accion.actualizar}]]</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="titular">[[#{agua.titular}]]</label>
+                                                    <input type="text" class="form-control" 
+                                                           name="titular" th:field="*{titular}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="fechaVencimiento">[[#{agua.fechaVencimiento}]]</label>
+                                                    <input type="date" class="form-control" 
+                                                           name="fechaVencimiento" th:field="*{fechaVencimiento}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="fechaPagar">[[#{agua.fechaPagar}]]</label>
+                                                    <input type="date" class="form-control" 
+                                                           name="fechaPagar" th:field="*{fechaPagar}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="fechaInicioPago">[[#{agua.fechaInicioPago}]]</label>
+                                                    <input type="date" class="form-control" 
+                                                           name="fechaInicioPago" th:field="*{fechaInicioPago}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="pagar">[[#{agua.pagar}]]</label>
+                                                    <input type="checkbox" class="form-check-input" 
+                                                           name="pagar" th:field="*{pagar}" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+        
+        
+        <!-- 5 Fragmento que se utiliza en el fragmento anterior -->
+        <section th:fragment="botonesEditar">
+            <div class="container py-4 mb-4 bg-light">
+                <div class="row">
+                    <div class="col-md-4 d-grid">
+                        <a th:href="@{/agua/listado}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
+                        </a>
+                    </div>
+                    <div class="col-md-4 d-grid">                                
+                        <a th:href="@{/agua/eliminar/}+${agua.idAgua}"
+                            class="btn btn-danger"
+                            onclick="return confirm('¿Estás seguro de que deseas eliminar este registro de agua?');">
+                             <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
+                         </a>
+                    </div>
+                    <div class="col-md-4 d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> [[#{accion.guardar}]]
+                        </button>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+        
+    </body>
+</html>

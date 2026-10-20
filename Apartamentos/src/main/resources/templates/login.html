@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>Apartamentos</title>  
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+
+        <section th:fragment="login" class="vh-100 gradient-custom">
+            <div class="container py-5 h-100">
+                <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                            <div class="card-body p-5 text-center">
+                                <form method="POST" th:action="@{/login}">
+                                    <div>
+                                        <h2 class="fw-bold mb-2 text-uppercase">[[#{login.login}]]</h2>
+                                        <p class="text-white-50 mb-5">[[#{login.descripcion}]]</p>
+                                        <div class="form-outline form-white mb-4">
+                                            <input type="text" id="typeUsername" class="form-control form-control-lg" name="username"/>
+                                            <label class="form-label" for="typeUsername">[[#{usuario.nombre}]]</label>
+                                        </div>
+                                        <div class="form-outline form-white mb-4">
+                                            <input type="password" id="typePassword" class="form-control form-control-lg" name="password"/>
+                                            <label class="form-label" for="typePassword">[[#{usuario.password}]]</label>
+                                        </div>
+
+                                        <button class="btn btn-outline-light btn-lg px-5" type="submit">[[#{login.login}]]</button>
+                                        
+                                    </div>
+                                    <div>
+                                        <a th:href="@{/menu/registro}" class="btn text-white" ><i class="fas fa-user-plus"></i> [[#{accion.registrar}]]</a>
+
+                                    </div>
+                                    <div th:if="${param.error != null}">
+                                        <h3>[[#{error.login}]]</h3>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <footer th:replace="~{layout/plantilla :: footer}"/>
+
+    </body>
+
+</html>

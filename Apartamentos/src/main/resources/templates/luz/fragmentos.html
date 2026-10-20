@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>luz</title>
+        <script src="rutinas.js"></script>
+    </head>
+    <body>
+        <!-- 1 Sección para crear el boton de agregar... llamará a una ventana modal-->
+        <section th:fragment="botonesAgregar" class="py-4 mb-4 bg-light">
+            <div class="container">
+                <div class="row d-flex justify-content-between align-items-center">
+                    <!-- Botón Agregar - Alineado a la izquierda -->
+                    <div class="col-md-3">
+                        <button 
+                            type="button" 
+                            class="btn btn-custom btn-block" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#agregarLuz">
+                            <i class="fas fa-plus"></i> [[#{accion.agregar}]]
+                        </button>
+                    </div>
+
+                    <div class="col-md-2" style="margin-left: 200px;">
+                        <a th:href="@{/luz/ActualizarFechaVencimiento}" class="btn btn-primary btn-block">
+                            <i class="fas fa-sync-alt"></i> Actualizar Fechas
+                        </a>
+                    </div>
+                    <div class="col-md-2" style="margin-right: 5px;">
+                        <a th:href="@{/luz/descargar}" class="btn btn-danger btn-block">
+                            <i class="fas fa-file-pdf"></i> Descargar PDF
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-2" style="margin-right: 80px;">
+                        <a th:href="@{/luz/descargarMontos}" class="btn btn-danger btn-block">
+                            <i class="fas fa-file-pdf"></i> Descargar Montos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2 Fragmento para agregar categoria, es la ventana modal -->
+        <section th:fragment="agregarLuz">
+            <div id="agregarLuz" 
+                 class="modal fade" 
+                 tabindex="-1" 
+                 aria-labelledby="exampleModalLabel" 
+                 aria-hidden="true">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header titulo">
+                            <h5 class="modal-title">[[#{luz.agregar}]]</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div> 
+                        <form th:action="@{/luz/guardar}" th:object="${luz}"
+                              method="POST" class="was-validated" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="idLuz">[[#{luz.idLuz}]]</label>
+                                    <input type="number" class="form-control" name="idLuz" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="titular">[[#{luz.titular}]]</label>
+                                    <input type="text" class="form-control" name="titular" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fechaVencimiento">[[#{luz.fechaVencimiento}]]</label>
+                                    <input type="date" class="form-control" name="fechaVencimiento" required="true"/>
+                                </div> 
+                                <div class="mb-3">
+                                    <label for="fechaPagar">[[#{luz.fechaPagar}]]</label>
+                                    <input type="date" class="form-control" name="fechaPagar" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fechaInicioPago">[[#{luz.fechaInicioPago}]]</label>
+                                    <input type="date" class="form-control" name="fechaInicioPago" required="true"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="pagar">[[#{luz.pagar}]]</label>
+                                    <input type="checkbox" class="form-check-input" name="pagar" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-custom" type="submit">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3 Sección principal para mostrar la informaccion de la entidad categoria -->
+        <section th:fragment="listadoLuz" id="luz">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-11">
+                        <div class="card">
+                            <div class="card-header titulo">
+                                <h4>[[#{luz.listado}]]</h4>
+                            </div>
+                            <div th:if="${luz != null and !luz.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark titulo">
+                                        <tr>
+                                            <th>[[#{luz.idLuz}]]</th>
+                                            <th>[[#{luz.idApartamento}]]</th>
+                                            <th>[[#{luz.fechaVencimiento}]]</th>
+                                            <th>[[#{luz.titular}]]</th>
+                                            <th>[[#{luz.pagar}]]</th>
+                                            <th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="luz, contador : ${luz}">
+                                            <td>[[${luz.idLuz}]]</td>
+                                            <td>
+                                                <div th:each="apartamento : ${luz.idApartamento}">
+                                                    <span th:text="${apartamento.ubicacion + ' ' + apartamento.descripcionDepartamento}"></span><br>
+                                                </div>
+                                            </td>
+                                            <td th:text="${#dates.format(luz.fechaVencimiento, 'dd-MM-yyyy')}"></td>
+                                            <td>[[${luz.titular}]]</td>
+                                            <td>
+                                                <input type="checkbox" class="form-check-input" 
+                                                       th:checked="${luz.pagar}" 
+                                                       disabled="true" />
+                                            </td>
+                                            <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                                <a th:href="@{/luz/eliminar/}+${luz.idLuz}"
+                                                    class="btn btn-danger"
+                                                    style="margin-right: 10px; margin-bottom: 10px;"
+                                                    onclick="return confirm('¿Estás seguro de que deseas eliminar esta luz?');">
+                                                    <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
+                                                 </a>
+                                                <a th:href="@{/luz/modificar/}+${luz.idLuz}"
+                                                   class="btn btn-success" style="margin-right: 10px; margin-bottom: 10px;">
+                                                    <i class="fas fa-pencil"></i> [[#{accion.actualizar}]]</a>
+                                                <a th:href="@{/luz/interactuarPagina/}+${luz.idLuz}"
+                                                   class="btn btn-info" style="margin-right: 20px; margin-bottom: 10px;">
+                                                    <i class="fas fa-search"></i> [[#{accion.cobro}]]</a>
+                                                <a th:href="@{/luz/pagar/}+${luz.idLuz}"
+                                                   class="btn btn-warning" style="margin-right: 10px; margin-bottom: 10px;">
+                                                    <i class="fas fa-dollar-sign"></i> [[#{accion.pagar}]]</a></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${luz == null or luz.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section th:fragment="editarLuz">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <form method="POST"
+                          th:action="@{/luz/guardar}" 
+                          th:object="${luz}"
+                          class="was-validated"                          
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="idLuz" th:field="*{idLuz}"/>
+                        <input type="hidden" name="idApartamento" th:field="*{idApartamento}"/>
+                        <section th:replace="~{luz/fragmentos :: botonesEditar}"/>
+                        <div id=details>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card">
+                                            <div class="card-header titulo">
+                                                <h4>[[#{accion.actualizar}]]</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="titular">[[#{luz.titular}]]</label>
+                                                    <input type="text" class="form-control" 
+                                                           name="titular" th:field="*{titular}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="fechaVencimiento">[[#{luz.fechaVencimiento}]]</label>
+                                                    <input type="date" class="form-control" 
+                                                           name="fechaVencimiento" th:field="*{fechaVencimiento}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="fechaPagar">[[#{luz.fechaPagar}]]</label>
+                                                    <input type="date" class="form-control" 
+                                                           name="fechaPagar" th:field="*{fechaPagar}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="fechaInicioPago">[[#{luz.fechaInicioPago}]]</label>
+                                                    <input type="date" class="form-control" 
+                                                           name="fechaInicioPago" th:field="*{fechaInicioPago}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="pagar">[[#{luz.pagar}]]</label>
+                                                    <input type="checkbox" class="form-check-input" 
+                                                           name="pagar" th:field="*{pagar}" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+                        
+        <!-- 5 Fragmento que se utiliza en el fragmento anterior -->
+        <section th:fragment="botonesEditar">
+            <div class="container py-4 mb-4 bg-light">
+                <div class="row">
+                    <div class="col-md-4 d-grid">
+                        <a th:href="@{/luz/listado}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
+                        </a>
+                    </div>
+                    <div class="col-md-4 d-grid">                                
+                        <a th:href="@{/luz/eliminar/}+${luz.idLuz}"
+                            class="btn btn-danger"
+                            onclick="return confirm('¿Estás seguro de que deseas eliminar este registro de Luz?');">
+                             <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
+                         </a>
+                    </div>
+                    <div class="col-md-4 d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> [[#{accion.guardar}]]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </body>
+</html>
